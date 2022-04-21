@@ -1,29 +1,39 @@
 package platform;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Code {
 
+    @JsonIgnore
+    private Long id;
     private String code;
     private String date;
-    private String codeSnippet = "public static void main(String[] args) {\n" +
-            "    SpringApplication.run(CodeSharingPlatform.class, args);\n" +
-            "}";
 
     public Code() {
-        this.code = codeSnippet;
-        this.date = LoadDate.getLoadDate();
+    }
+
+    public Code(Long id, String code, String date) {
+        this.id = id;
+        this.code = code;
+        this.date = date;
     }
 
     public String getCode() {
         return code;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setCode(String code) {
         this.code = code;
     }
 
-    //    @JsonSerialize(using = LocalDateTimeSerializer.class)
-//    @JsonFormat(pattern = "yyyy/MM/dd HH:mm:ss")
-//    @JsonProperty("date")
     public String getDate() {
         return date;
     }
@@ -31,4 +41,5 @@ public class Code {
     public void setDate(String date) {
         this.date = date;
     }
+
 }
