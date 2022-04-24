@@ -1,11 +1,13 @@
 package platform;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class CodeSharingPlatformController {
@@ -24,15 +26,21 @@ public class CodeSharingPlatformController {
     @PostMapping(value = "/api/code/new", produces = "application/json")
     public ResponseEntity<?> postCodeSnippet(@RequestBody Code rqstCode) {
         rqstCode.setDate(LoadDate.getLoadDate());
+        rqstCode.setUuid(UUID.randomUUID().toString());
         codeService.saveCode(rqstCode);
-        return ResponseEntity.ok(new DTOCode(String.valueOf(rqstCode.getId())));
+        return ResponseEntity.ok(new UUIDResponse(rqstCode.getUuid()));
     }
 
     // API endpoint for retrieving code snippet
-    @GetMapping(value = "/api/code/{id}", produces = "application/json")
-    public ResponseEntity<Code> getCodeSnippet(@PathVariable Long id) {
-        Code codeByID = codeService.findCodeById(id);
-        return ResponseEntity.ok(codeByID);
+    @GetMapping(value = "/api/code/{uuid}", produces = "application/json")
+    public ResponseEntity<?> getCodeSnippet(@PathVariable String uuid) {
+        Code codeByID = codeService.findCodeByUUID(uuid);
+        Code codePermitted = codeService.checkRestrictions(codeByID);
+        //DTO for practice used only in API response to hide field restricted in API
+        // could be done by @JsonIgnore above restricted field
+        CodeDto codeDto = new CodeDto();
+        BeanUtils.copyProperties(codePermitted, codeDto);
+        return ResponseEntity.ok(codeDto);
     }
 
     // Browser endpoint for posting code snippet
@@ -42,12 +50,12 @@ public class CodeSharingPlatformController {
     }
 
     // Browser endpoint for retrieving code snippet
-    @GetMapping(value = "/code/{id}", produces = "text/html")
-    public ModelAndView getIndex(@PathVariable Long id) {
-        Code codeByID = codeService.findCodeById(id);
+    @GetMapping(value = "/code/{uuid}", produces = "text/html")
+    public ModelAndView getIndex(@PathVariable String uuid) {
+        Code codeByID = codeService.findCodeByUUID(uuid);
+        Code codePermitted = codeService.checkRestrictions(codeByID);
         ModelAndView mv = new ModelAndView("index");
-        mv.addObject("time", codeByID.getDate());
-        mv.addObject("code", codeByID.getCode());
+        mv.addObject("codeInstance", codePermitted);
         return mv;
     }
 

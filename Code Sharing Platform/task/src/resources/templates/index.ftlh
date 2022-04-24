@@ -9,8 +9,23 @@
     <script>hljs.initHighlightingOnLoad();</script>
 <link rel="stylesheet" href="/css/style.css"></head>
 <body>
-<span id="load_date" class="time">${time}</span>
+
+<span id="load_date" class="time">${codeInstance.date}</span>
 <br>
-<pre id="code_snippet" class="code"><code>${code}</code></pre>
+<#if codeInstance.restricted == "none">
+<#elseif codeInstance.restricted == "time">
+ The code will be available for <span id="time_restriction"><b><u>${codeInstance.time}</u></b></span> seconds.
+ <br>
+<#elseif  codeInstance.restricted == "view" >
+<span id="views_restriction"><b><u>${codeInstance.views}</u></b></span> more views allowed.
+<br>
+<#elseif  codeInstance.restricted == "both">
+<span id="views_restriction"><b><u>${codeInstance.views}</u></b></span> more views allowed.
+<br>
+ The code will be available for <span id="time_restriction"><b><u>${codeInstance.time}</u></b></span> seconds.
+ <br>
+</#if>
+
+<pre id="code_snippet" class="code"><code>${codeInstance.code}</code></pre>
 </body>
 </html>
